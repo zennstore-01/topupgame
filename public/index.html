@@ -1,1 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RobuxFast - Top Up Murah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .card-active { border: 2px solid #ef4444 !important; background: rgba(239, 68, 68, 0.1); }
+    </style>
+</head>
+<body class="bg-[#0f172a] text-white">
+    <nav class="p-5 border-b border-slate-800 bg-[#1e293b]">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-black text-red-500 tracking-tighter italic">ROBUX<span class="text-white">FAST</span></h1>
+            <div class="text-sm font-bold bg-slate-700 px-3 py-1 rounded text-green-400">SERVER ONLINE</div>
+        </div>
+    </nav>
 
+    <div class="container mx-auto px-4 py-10 max-w-4xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- Kiri: Input Data -->
+            <div class="space-y-6">
+                <div class="bg-[#1e293b] p-6 rounded-2xl shadow-xl border border-slate-700">
+                    <h2 class="text-lg font-bold mb-4 flex items-center"><i class="fa-solid fa-user-circle mr-2 text-red-500"></i> 1. Data Akun</h2>
+                    <input type="text" id="username" placeholder="Username Roblox" class="w-full p-4 rounded-xl bg-[#0f172a] border border-slate-600 focus:ring-2 focus:ring-red-500 outline-none transition">
+                </div>
+
+                <div class="bg-[#1e293b] p-6 rounded-2xl shadow-xl border border-slate-700">
+                    <h2 class="text-lg font-bold mb-4 flex items-center"><i class="fa-solid fa-credit-card mr-2 text-red-500"></i> 2. Pembayaran</h2>
+                    <select id="payment" class="w-full p-4 rounded-xl bg-[#0f172a] border border-slate-600 outline-none">
+                        <option value="qris">QRIS (Otomatis)</option>
+                        <option value="dana">DANA</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Kanan: Pilih Produk -->
+            <div class="bg-[#1e293b] p-6 rounded-2xl shadow-xl border border-slate-700">
+                <h2 class="text-lg font-bold mb-4 flex items-center"><i class="fa-solid fa-box-open mr-2 text-red-500"></i> 3. Pilih Nominal</h2>
+                <div class="grid grid-cols-2 gap-3" id="product-list">
+                    <!-- Produk di-generate via JS -->
+                </div>
+
+                <button onclick="prosesTopup()" id="btn-beli" class="w-full mt-8 bg-red-600 hover:bg-red-700 py-4 rounded-xl font-black text-xl shadow-lg shadow-red-900/20 transform transition active:scale-95">
+                    BAYAR SEKARANG
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const products = [
+            { id: 'rbx80', name: '80 Robux', price: 12500 },
+            { id: 'rbx400', name: '400 Robux', price: 65000 },
+            { id: 'rbx800', name: '800 Robux', price: 125000 },
+            { id: 'rbx1700', name: '1700 Robux', price: 250000 }
+        ];
+
+        let selectedProduct = null;
+
+        const container = document.getElementById('product-list');
+        products.forEach(p => {
+            const div = document.createElement('div');
+            div.className = "cursor-pointer p-4 rounded-xl border border-slate-600 bg-[#0f172a] hover:border-red-500 transition";
+            div.innerHTML = `<p class='font-bold text-sm'>${p.name}</p><p class='text-red-400 text-xs'>Rp ${p.price.toLocaleString()}</p>`;
+            div.onclick = () => {
+                document.querySelectorAll('#product-list div').forEach(el => el.classList.remove('card-active'));
+                div.classList.add('card-active');
+                selectedProduct = p;
+            };
+            container.appendChild(div);
+        });
+
+        async function prosesTopup() {
+            const user = document.getElementById('username').value;
+            if(!user || !selectedProduct) return alert("Isi username dan pilih produk!");
+
+            const btn = document.getElementById('btn-beli');
+            btn.innerText = "PROSES...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/topup', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username: user, product: selectedProduct.id })
+                });
+                const data = await res.json();
+                alert(data.message || "Pesanan Diterima! Silahkan cek riwayat.");
+            } catch (e) {
+                alert("Terjadi kesalahan sistem.");
+            } finally {
+                btn.innerText = "BAYAR SEKARANG";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
